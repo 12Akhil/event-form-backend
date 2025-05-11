@@ -145,6 +145,7 @@ router.post('/register', async (req, res) => {
 router.post('/check-in', async (req, res) => {
   try {
     const { qrCodeId } = req.body;
+
     const user = await User.findOneAndUpdate(
       { qrCode: qrCodeId },
       { isCheckedIn: true },
