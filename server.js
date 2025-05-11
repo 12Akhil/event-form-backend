@@ -10,8 +10,9 @@ const app = express(); // ✅ Initialize app first
 
 // ✅ Enable CORS for your frontend URL
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Use FRONTEND_URL from .env or default to localhost
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
+  credentials: true, // Allow credentials (cookies, HTTP authentication)
 }));
 
 // ✅ Middleware to parse JSON and form data
@@ -24,10 +25,10 @@ app.use('/api', authRoutes);
 // ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB connected'))
-.catch((err) => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // ✅ Test Route
 app.get('/', (req, res) => {
