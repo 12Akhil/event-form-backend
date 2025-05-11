@@ -5,44 +5,45 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
-app.use('/api', authRoutes);
 
-const app = express();
+const app = express(); // ✅ Initialize app first
 
-// Enable CORS for frontend
+// ✅ Enable CORS for your frontend URL
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 
-// Middleware
+// ✅ Middleware to parse JSON and form data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// ✅ API Routes
+app.use('/api', authRoutes);
 
-// Root route to avoid 404 at /
+// ✅ Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected'))
+.catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// ✅ Test Route
 app.get('/', (req, res) => {
   res.send('Backend API is running.');
 });
 
-// Routes
-app.use('/api', authRoutes);
-
-// Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: "API is working!" });
 });
 
-// Catch-all 404 handler
+// ✅ 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server
+// ✅ Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
