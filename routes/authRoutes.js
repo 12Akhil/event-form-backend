@@ -3,9 +3,8 @@ const User = require('../models/User');
 const router = express.Router();
 
 
-// POST endpoint to get user by email
 router.post('/get-user', async (req, res) => {
-  console.log("Received request with body:", req.body); // Debug log
+  console.log("Received request with body:", req.body);
   
   try {
     const { email } = req.body;
@@ -94,10 +93,8 @@ router.get('/get-all-users', async (req, res) => {
 });
 
 
-// Add this at the top of your file
 const { v4: uuidv4 } = require('uuid');
 
-// Update your register endpoint
 router.post('/register', async (req, res) => {
   try {
     const { fullName, email, phone } = req.body;
@@ -110,7 +107,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ 
         error: 'User already exists',
-        qrCode: existingUser.qrCode // Return existing QR code
+        qrCode: existingUser.qrCode 
       });
     }
 
@@ -118,7 +115,7 @@ router.post('/register', async (req, res) => {
       fullName, 
       email, 
       phone,
-      qrCode: uuidv4() // Generate QR code here
+      qrCode: uuidv4() 
     });
     
     await newUser.save();
@@ -168,6 +165,42 @@ router.post('/check-in', async (req, res) => {
       success: false,
       error: error.message 
     });
+  }
+});
+
+router.post('/login', async (req, res) => {
+  console.log("Received login request:", req.body);
+
+  try {
+    const { fullName, phone } = req.body;
+
+    if (!fullName || !phone) {
+      return res.status(400).json({ error: 'FullName and phone are required' });
+    }
+
+    const user = await User.findOne({
+      fullName: fullName.trim(),
+      phone: phone.trim()
+    }).lean();
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found. Please register first.' });
+    }
+
+    return res.json({
+      success: true,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        qrCodeId: user.qrCodeId || user._id.toString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Server error during login:', error);
+    return res.status(500).json({ error: 'Server error', details: error.message });
   }
 });
 
